@@ -1,0 +1,23 @@
+{
+  "raw_rows": 541909,
+  "clean_rows": 397884,
+  "customers": 4338,
+  "orders": 18532,
+  "revenue_gbp": 8911407.9,
+  "average_order_value_gbp": 480.87,
+  "silhouette_score": 0.3355470584455458,
+  "champions_customers": 720,
+  "champions_customer_share": 0.16597510373443983,
+  "champions_revenue_share": 0.64936853775962,
+  "at_risk_customers": 1579,
+  "at_risk_revenue_share": 0.06239268553181471,
+  "peak_month": "2011-11",
+  "peak_month_revenue_gbp": 1161817.38,
+  "validation_checks": {
+    "segment_customer_count_matches": true,
+    "segment_revenue_matches": true,
+    "customer_share_sums_to_one": true,
+    "revenue_share_sums_to_one": true,
+    "no_nonpositive_sales_rows": true
+  }
+}

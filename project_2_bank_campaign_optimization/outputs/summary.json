@@ -1,0 +1,21 @@
+{
+  "raw_rows": 41188,
+  "duplicate_rows_removed": 12,
+  "analysis_rows": 41176,
+  "subscription_rate": 0.11266271614532737,
+  "selected_model": "Random Forest",
+  "roc_auc": 0.8139734973953909,
+  "pr_auc": 0.487036573912343,
+  "top_20_conversion_rate": 0.3713592233009709,
+  "top_20_lift": 3.2958131067961163,
+  "top_20_capture": 0.6594827586206896,
+  "holdout_rows": 8236,
+  "validation_checks": {
+    "duration_excluded": true,
+    "train_test_rows_reconcile": true,
+    "target_rate_in_range": true,
+    "probabilities_in_range": true,
+    "decile_customers_reconcile": true,
+    "decile_subscribers_reconcile": true
+  }
+}

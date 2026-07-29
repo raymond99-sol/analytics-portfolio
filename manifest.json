@@ -1,0 +1,16 @@
+{
+  "projects": [
+    {
+      "name": "E-commerce Customer Segmentation & Revenue Strategy",
+      "notebook": "project_1_retail_customer_segmentation/retail_customer_segmentation.ipynb",
+      "source": "https://doi.org/10.24432/C5BW33",
+      "validation": "executed"
+    },
+    {
+      "name": "Bank Marketing Campaign Optimization",
+      "notebook": "project_2_bank_campaign_optimization/bank_campaign_optimization.ipynb",
+      "source": "https://doi.org/10.24432/C5K306",
+      "validation": "executed"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+.DS_Store
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+*.pyc
+*.sqlite
+*.zip
+
+# Downloaded source data is reproducible through download_data.py
+project_1_retail_customer_segmentation/data/
+project_2_bank_campaign_optimization/data/
