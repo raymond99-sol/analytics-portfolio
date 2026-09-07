@@ -10,8 +10,10 @@ reactivation, and second-purchase campaigns?
 - Cleaned and validated 541,909 invoice-line records.
 - Used SQLite queries to calculate revenue, order, customer, country, and monthly KPIs.
 - Built RFM features for 4,338 customers.
-- Applied standardized log-transformed K-means clustering and checked cluster separation
-  with a silhouette score of 0.336.
+- Compared K=2 through K=8, then evaluated the selected K=4 solution with silhouette
+  separation and repeated-seed stability diagnostics.
+- Applied standardized log-transformed K-means clustering and exported the complete
+  model-selection evidence.
 - Produced campaign-ready customer segments and reproducible visualizations.
 
 ## Key findings
@@ -23,6 +25,9 @@ reactivation, and second-purchase campaigns?
   **64.9% of cleaned revenue**.
 - The **At Risk** segment contains **1,579 customers**;
   it is a focused reactivation opportunity, but campaign impact should be tested with a holdout.
+- K=2 has the highest silhouette score (0.433), but K=4 preserves more decision-relevant
+  heterogeneity with a 0.336 silhouette score and strong repeated-seed stability
+  (mean adjusted Rand index 0.952; minimum 0.915).
 - The source begins and ends with partial months, so edge-month trend comparisons are caveated.
 
 ## Recommended actions
@@ -35,9 +40,14 @@ reactivation, and second-purchase campaigns?
 ## Files
 
 - `retail_customer_segmentation.ipynb` - executed analysis notebook
+- `RESEARCH_BRIEF.md` - concise academic framing, evidence, limitations, and next study
+- `REPRODUCIBILITY.md` - exact clean-room reproduction procedure and expected outputs
+- `validate_outputs.py` - machine-checkable reconciliation of headline results
 - `sql/customer_analysis.sql` - standalone SQL queries
 - `outputs/customer_segments.csv` - customer-level segment assignments
 - `outputs/segment_summary.csv` - segment KPIs
+- `outputs/cluster_diagnostics.csv` - K=2 through K=8 model-selection diagnostics
+- `outputs/cluster_stability.csv` - repeated-seed adjusted Rand index checks
 - `outputs/charts/` - presentation-ready charts
 
 ## Data source
@@ -49,3 +59,20 @@ DOI: https://doi.org/10.24432/C5BW33. Licensed under CC BY 4.0.
 
 This is observational transaction data without product cost, margin, marketing exposure,
 or experimentation. Segment recommendations are hypotheses to test, not causal findings.
+
+## Reproduce
+
+From the repository root:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r project_1_retail_customer_segmentation/requirements.txt
+python download_data.py --project retail
+jupyter nbconvert --execute --to notebook --inplace \
+  --ExecutePreprocessor.timeout=600 \
+  project_1_retail_customer_segmentation/retail_customer_segmentation.ipynb
+python project_1_retail_customer_segmentation/validate_outputs.py
+```
+
+See [`REPRODUCIBILITY.md`](REPRODUCIBILITY.md) for validation checks and expected files.

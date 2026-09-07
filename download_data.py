@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import shutil
 import tempfile
 import urllib.request
@@ -46,12 +47,28 @@ def prepare_bank(temp_dir: Path) -> None:
             shutil.copy2(extracted, destination / extracted.name)
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Download public source data for one or both portfolio projects."
+    )
+    parser.add_argument(
+        "--project",
+        choices=("retail", "bank", "all"),
+        default="all",
+        help="Dataset to download (default: all).",
+    )
+    return parser.parse_args()
+
+
 def main() -> None:
+    args = parse_args()
     with tempfile.TemporaryDirectory() as temp:
         temp_dir = Path(temp)
-        prepare_retail(temp_dir)
-        prepare_bank(temp_dir)
-    print("Data downloaded successfully.")
+        if args.project in {"retail", "all"}:
+            prepare_retail(temp_dir)
+        if args.project in {"bank", "all"}:
+            prepare_bank(temp_dir)
+    print(f"Data download completed for: {args.project}.")
 
 
 if __name__ == "__main__":

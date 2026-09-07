@@ -4,3 +4,4 @@ scikit-learn>=1.5
 matplotlib>=3.9
 openpyxl>=3.1
 jupyterlab>=4.2
+nbconvert>=7.16

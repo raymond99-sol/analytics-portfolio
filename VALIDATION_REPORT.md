@@ -10,6 +10,8 @@ the executed code.
 
 - Retail sales exclude cancelled invoices, missing CustomerID values, and non-positive
   quantities or prices. Segment customer counts and revenue reconcile to the cleaned data.
+- Retail model selection compares K=2 through K=8. K=4 has a silhouette score of 0.336
+  and remains stable across 25 random seeds (mean adjusted Rand index 0.952; minimum 0.915).
 - Retail edge months are partial; the notebook labels this limitation.
 - Bank duplicate rows are removed before modeling.
 - Bank `duration` is excluded from pre-call features to prevent target leakage.
@@ -20,6 +22,8 @@ the executed code.
 
 - Retail segment customer shares sum to 100%: verified.
 - Retail segment revenue sums to cleaned transaction revenue: verified.
+- Retail K diagnostics cover every integer from 2 through 8, and repeated-seed ARI values
+  remain within their valid range: verified.
 - Bank score deciles reconcile to all 8,236 holdout records: verified.
 - Bank top-20% capture and lift recompute from saved holdout scoring outputs: verified.
 

@@ -1,6 +1,7 @@
-# Rong Zhao - Analytics Portfolio
+# Rong Zhao - Research-Oriented Analytics Portfolio
 
-Two reproducible projects aligned with Business Analyst and Data Analyst roles:
+Two reproducible projects at the intersection of business analytics, quantitative
+marketing, and information systems:
 
 1. **E-commerce Customer Segmentation & Revenue Strategy**  
    SQL KPIs, RFM analysis, K-means clustering, and campaign recommendations.
@@ -9,7 +10,7 @@ Two reproducible projects aligned with Business Analyst and Data Analyst roles:
    targeting strategy.
 
 Both projects use public UCI datasets under CC BY 4.0 and include executed notebooks,
-standalone SQL, saved results, charts, resume bullets, interview explanations, and a
+standalone SQL, saved results, charts, research limitations, resume bullets, and a
 validation report. Raw source data is intentionally excluded from GitHub and can be
 downloaded with the included setup script.
 
@@ -40,7 +41,8 @@ launched from the repository root or from the individual project folder.
 ## Project highlights
 
 - **Retail segmentation:** 541,909 raw invoice lines, 4,338 customers, and an RFM-based
-  Champions segment representing 16.6% of customers and 64.9% of cleaned revenue.
+  Champions segment representing 16.6% of customers and 64.9% of cleaned revenue;
+  K=2 through K=8 diagnostics and repeated-seed stability make the K=4 choice auditable.
 - **Bank campaign optimization:** a pre-call ranking model whose top 20% of holdout
   customers captured 65.9% of subscribers at 3.30x baseline lift.
 

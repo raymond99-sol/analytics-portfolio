@@ -1,4 +1,4 @@
-# Resume-ready project section
+# CV-ready research project section
 
 Use these bullets only after you have reviewed the notebooks and can explain the methods.
 
@@ -12,7 +12,8 @@ Use these bullets only after you have reviewed the notebooks and can explain the
 - Developed an RFM-based K-means segmentation model that identified a
   **16.6% Champions segment generating
   64.9% of cleaned revenue**, and translated
-  segment profiles into retention, reactivation, and second-purchase strategies.
+  segment profiles into retention, reactivation, and second-purchase strategies;
+  evaluated K=2 through K=8 and confirmed strong K=4 repeated-seed stability.
 
 ## Bank Marketing Campaign Optimization
 
@@ -34,8 +35,10 @@ Use these bullets only after you have reviewed the notebooks and can explain the
 cancellations, invalid prices and quantities, and records without customer IDs. I used
 SQL for core KPIs, then created recency, frequency, and monetary features in Python.
 Because these variables were highly skewed, I log-transformed and standardized them
-before K-means clustering. I treated the segments as targeting hypotheses and recommended
-controlled tests rather than claiming causal lift.”
+before K-means clustering. K=2 had the highest silhouette score, but I retained K=4 as
+the more decision-useful framework and checked its stability across 25 random seeds. I
+treated the segments as targeting hypotheses and recommended controlled tests rather than
+claiming causal lift.”
 
 ### Bank project
 

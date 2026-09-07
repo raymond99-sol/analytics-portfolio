@@ -1,4 +1,5 @@
 {
+  "source_sha256": "43465a06f2ccf7c8b5bd2892bc7defb52f97487934fe93b16ae4c3936424676d",
   "raw_rows": 541909,
   "clean_rows": 397884,
   "customers": 4338,
@@ -6,6 +7,9 @@
   "revenue_gbp": 8911407.9,
   "average_order_value_gbp": 480.87,
   "silhouette_score": 0.3355470584455458,
+  "best_silhouette_k": 2,
+  "mean_stability_ari": 0.9518833454803258,
+  "minimum_stability_ari": 0.9154650963934552,
   "champions_customers": 720,
   "champions_customer_share": 0.16597510373443983,
   "champions_revenue_share": 0.64936853775962,
@@ -18,6 +22,9 @@
     "segment_revenue_matches": true,
     "customer_share_sums_to_one": true,
     "revenue_share_sums_to_one": true,
-    "no_nonpositive_sales_rows": true
+    "no_nonpositive_sales_rows": true,
+    "candidate_k_range_complete": true,
+    "selected_k_silhouette_matches": true,
+    "stability_scores_bounded": true
   }
 }
