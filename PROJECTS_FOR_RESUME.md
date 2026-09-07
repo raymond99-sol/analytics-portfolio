@@ -19,13 +19,13 @@ Use these bullets only after you have reviewed the notebooks and can explain the
 
 **Python, SQL, scikit-learn, Classification**
 
-- Built and compared logistic-regression and random-forest pipelines on
-  **41,176 bank campaign observations**, excluding post-call
-  duration to prevent target leakage and evaluating performance with ROC-AUC and PR-AUC.
-- Designed a pre-call targeting strategy whose highest-ranked 20% of holdout customers
+- Developed and validated logistic-regression and random-forest pipelines on
+  **41,176 bank campaign observations**, selecting the model through five-fold
+  training-set PR-AUC and excluding post-call duration to prevent target leakage.
+- Designed a pre-call targeting strategy whose highest-ranked 20% of holdout observations
   captured **65.9% of subscribers** at
-  **3.30x baseline lift**, with a randomized-pilot plan
-  to measure incremental impact.
+  **3.30x baseline lift**; quantified uncertainty with 1,000 bootstrap samples and
+  proposed a randomized pilot to measure incremental impact.
 
 ## Short interview explanations
 
@@ -43,7 +43,9 @@ claiming causal lift.”
 ### Bank project
 
 “The business objective was to prioritize calls, so I focused on ranking metrics rather
-than accuracy. I excluded call duration because it is only available after the call and
-would leak the outcome. I compared two models, evaluated PR-AUC because the target was
-imbalanced, and measured how many subscribers appeared in the top 20% of scores. My next
-step would be a temporal validation followed by a randomized pilot.”
+than accuracy. I isolated the holdout before using five-fold training validation to
+compare a baseline, logistic regression, and random forest. I excluded call duration
+because it is only available after the call; a leakage audit showed it would inflate
+ROC-AUC from 0.814 to 0.946. After calibrating the selected model, I used bootstrap
+intervals to test whether top-20% lift and capture were stable. My next step would be a
+later-period validation followed by a randomized pilot.”

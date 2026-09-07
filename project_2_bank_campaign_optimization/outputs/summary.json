@@ -1,21 +1,56 @@
 {
+  "data_sha256": "74adfc578bf77a7ff4bb1ba4a9f8709d9e3c6907342959c2c8416847e0afb4d8",
   "raw_rows": 41188,
   "duplicate_rows_removed": 12,
   "analysis_rows": 41176,
+  "positive_outcomes": 4639,
   "subscription_rate": 0.11266271614532737,
-  "selected_model": "Random Forest",
-  "roc_auc": 0.8139734973953909,
-  "pr_auc": 0.487036573912343,
+  "rows_with_unknown": 10698,
+  "selected_base_model": "Random Forest",
+  "selection_rule": "Highest mean five-fold training-set PR-AUC",
+  "cv_pr_auc_mean": 0.4670973330552427,
+  "cv_pr_auc_std": 0.018201972254862368,
+  "cv_roc_auc_mean": 0.7996955871002658,
+  "cv_roc_auc_std": 0.010713520505861933,
+  "final_model": "Calibrated Random Forest",
+  "holdout_rows": 8236,
+  "roc_auc": 0.8132610784355359,
+  "roc_auc_ci95": [
+    0.7971015908545963,
+    0.8301470907582386
+  ],
+  "pr_auc": 0.4849097157517414,
+  "pr_auc_ci95": [
+    0.44927981975378134,
+    0.5206157651766664
+  ],
+  "brier_score": 0.07544451915343232,
   "top_20_conversion_rate": 0.3713592233009709,
   "top_20_lift": 3.2958131067961163,
+  "top_20_lift_ci95": [
+    3.156073423716278,
+    3.4417812645901513
+  ],
   "top_20_capture": 0.6594827586206896,
-  "holdout_rows": 8236,
+  "top_20_capture_ci95": [
+    0.6315212484560985,
+    0.6886905687280924
+  ],
+  "safe_model_pr_auc": 0.48679004650511487,
+  "leaky_model_pr_auc": 0.6522706728592049,
+  "safe_model_roc_auc": 0.8139137052214862,
+  "leaky_model_roc_auc": 0.9459161724043561,
+  "bootstrap_repeats": 1000,
   "validation_checks": {
-    "duration_excluded": true,
+    "source_hash_matches": true,
+    "duration_excluded_from_selection": true,
+    "holdout_isolation": true,
     "train_test_rows_reconcile": true,
-    "target_rate_in_range": true,
     "probabilities_in_range": true,
-    "decile_customers_reconcile": true,
-    "decile_subscribers_reconcile": true
+    "decile_contact_records_reconcile": true,
+    "decile_subscribers_reconcile": true,
+    "bootstrap_intervals_contain_estimates": true,
+    "calibration_improves_brier": true,
+    "leakage_audit_inflates_performance": true
   }
 }

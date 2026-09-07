@@ -1,0 +1,8 @@
+Check,Value,Status
+Raw rows,41188,Pass
+Exact duplicate rows,12,Documented
+Analysis rows,41176,Pass
+Missing cells,0,Pass
+Literal unknown cells,12716,Documented
+Rows containing unknown,10698,Documented
+Positive outcomes,4639,Pass

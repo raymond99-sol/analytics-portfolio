@@ -43,8 +43,9 @@ launched from the repository root or from the individual project folder.
 - **Retail segmentation:** 541,909 raw invoice lines, 4,338 customers, and an RFM-based
   Champions segment representing 16.6% of customers and 64.9% of cleaned revenue;
   K=2 through K=8 diagnostics and repeated-seed stability make the K=4 choice auditable.
-- **Bank campaign optimization:** a pre-call ranking model whose top 20% of holdout
-  customers captured 65.9% of subscribers at 3.30x baseline lift.
+- **Bank campaign optimization:** training-only five-fold model selection, probability
+  calibration, leakage auditing, and 1,000-sample bootstrap inference; the top 20% of
+  holdout scores captured 65.9% of subscribers at 3.30x baseline lift.
 
 ## Portfolio integrity
 

@@ -13,10 +13,12 @@ the executed code.
 - Retail model selection compares K=2 through K=8. K=4 has a silhouette score of 0.336
   and remains stable across 25 random seeds (mean adjusted Rand index 0.952; minimum 0.915).
 - Retail edge months are partial; the notebook labels this limitation.
-- Bank duplicate rows are removed before modeling.
-- Bank `duration` is excluded from pre-call features to prevent target leakage.
-- Bank performance is measured on a stratified holdout set using ranking and imbalance-aware
-  metrics; causal impact is not claimed.
+- Bank removes 12 exact duplicate rows and documents 10,698 rows containing source-coded
+  `unknown` values rather than treating them as missing at random.
+- Bank reserves the stratified holdout before five-fold training-set model selection;
+  `duration` is excluded from legitimate features and evaluated only in a leakage audit.
+- Bank calibrates the selected random forest on training data only and measures holdout
+  uncertainty with 1,000 bootstrap samples; causal impact is not claimed.
 
 ## Calculation spot-checks
 
@@ -26,6 +28,11 @@ the executed code.
   remain within their valid range: verified.
 - Bank score deciles reconcile to all 8,236 holdout records: verified.
 - Bank top-20% capture and lift recompute from saved holdout scoring outputs: verified.
+- Bank holdout ROC-AUC, PR-AUC, top-20% lift, and capture all fall inside their bootstrap
+  95% confidence intervals: verified.
+- Bank sigmoid calibration improves Brier score from 0.143 to 0.075: verified.
+- Bank leakage audit shows post-call duration inflates ROC-AUC from 0.814 to 0.946 and
+  PR-AUC from 0.487 to 0.652: verified.
 
 ## Required caveats
 

@@ -1,4 +1,4 @@
-previous_outcome,customers,subscribers,conversion_rate_pct
+previous_outcome,contact_records,subscribers,conversion_rate_pct
 success,1373,894,65.11
 failure,4252,605,14.23
 nonexistent,35551,3140,8.83
