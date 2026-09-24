@@ -1,0 +1,13 @@
+Final_Model,Comparator,Metric,Difference_Definition,Estimate,CI95_Lower,CI95_Upper,Bootstrap_Samples
+Selected calibrated specification,Logistic Regression,ROC_AUC,Final minus comparator; positive favors final,0.0032390990978237166,-0.0059320859117739265,0.011926288655025975,1000
+Selected calibrated specification,Logistic Regression,PR_AUC,Final minus comparator; positive favors final,0.012371089915200972,-0.00018992285738353684,0.025611768810816705,1000
+Selected calibrated specification,Logistic Regression,Brier_Score,Comparator minus final; positive favors final,0.11520719681898477,0.11089607684130884,0.11976859428264208,1000
+Selected calibrated specification,Logistic Regression,Top20_Capture,Final minus comparator; positive favors final,0.011853448275862044,-0.010776629981501336,0.030303881511746653,1000
+Selected calibrated specification,Histogram Gradient Boosting,ROC_AUC,Final minus comparator; positive favors final,-0.0008221976860502966,-0.006668722480976624,0.005464453179974468,1000
+Selected calibrated specification,Histogram Gradient Boosting,PR_AUC,Final minus comparator; positive favors final,-0.00299905484469154,-0.011033847412809144,0.006011641809914328,1000
+Selected calibrated specification,Histogram Gradient Boosting,Brier_Score,Comparator minus final; positive favors final,0.1073277975578621,0.1031637713156767,0.11193458439696685,1000
+Selected calibrated specification,Histogram Gradient Boosting,Top20_Capture,Final minus comparator; positive favors final,0.006465517241379282,-0.011880986477603545,0.019542934065542167,1000
+Selected calibrated specification,Random Forest raw,ROC_AUC,Final minus comparator; positive favors final,-0.0008159309353943378,-0.0031317562879108808,0.001341465123658868,1000
+Selected calibrated specification,Random Forest raw,PR_AUC,Final minus comparator; positive favors final,-0.0019970037347515346,-0.005972138766534081,0.0018988709402831686,1000
+Selected calibrated specification,Random Forest raw,Brier_Score,Comparator minus final; positive favors final,0.10121679618662933,0.0970842065295805,0.1057150375938592,1000
+Selected calibrated specification,Random Forest raw,Top20_Capture,Final minus comparator; positive favors final,-0.008620689655172431,-0.019846741427936198,0.0011138675872642678,1000

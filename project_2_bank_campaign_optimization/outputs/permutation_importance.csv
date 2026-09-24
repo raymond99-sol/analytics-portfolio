@@ -1,0 +1,11 @@
+Feature,Importance_Mean,Importance_SD,Scoring,Interpretation
+pdays,0.04094557287715807,0.004351123256878998,PR-AUC decrease,"Predictive association, not causal effect"
+age,0.02973705554916185,0.0025848168067745423,PR-AUC decrease,"Predictive association, not causal effect"
+poutcome,0.028028839443533606,0.0034914754711515266,PR-AUC decrease,"Predictive association, not causal effect"
+default,0.017252508505038892,0.004953133746255626,PR-AUC decrease,"Predictive association, not causal effect"
+previous,0.014424402567308564,0.0026904739110278457,PR-AUC decrease,"Predictive association, not causal effect"
+job,0.014375052615635176,0.002881117665988643,PR-AUC decrease,"Predictive association, not causal effect"
+education,0.007221470990142869,0.0024746720898804623,PR-AUC decrease,"Predictive association, not causal effect"
+marital,0.005953132250110416,0.0015665398328278445,PR-AUC decrease,"Predictive association, not causal effect"
+housing,-0.000842865043423735,0.0013077919643627223,PR-AUC decrease,"Predictive association, not causal effect"
+loan,-0.0012564168756576343,0.0017243126029163587,PR-AUC decrease,"Predictive association, not causal effect"

@@ -13,12 +13,14 @@ the executed code.
 - Retail model selection compares K=2 through K=8. K=4 has a silhouette score of 0.336
   and remains stable across 25 random seeds (mean adjusted Rand index 0.952; minimum 0.915).
 - Retail edge months are partial; the notebook labels this limitation.
-- Bank removes 12 exact duplicate rows and documents 10,698 rows containing source-coded
-  `unknown` values rather than treating them as missing at random.
-- Bank reserves the stratified holdout before five-fold training-set model selection;
-  `duration` is excluded from legitimate features and evaluated only in a leakage audit.
-- Bank calibrates the selected random forest on training data only and measures holdout
-  uncertainty with 1,000 bootstrap samples; causal impact is not claimed.
+- Bank audits every predictor by decision-time availability, removes 12 exact duplicate
+  rows for the primary analysis, and tests retention of all rows as a sensitivity check.
+- The primary bank model uses only customer and prior-campaign planning fields. Raw
+  `campaign` is excluded; `campaign_prior = campaign - 1` appears only in operational
+  sensitivity analysis, and `duration` only in an invalid leakage benchmark.
+- Four locked benchmarks use five-fold training-only selection. Raw, sigmoid, and
+  isotonic probabilities use nested training-only calibration selection; model
+  differences and final metrics use 1,000 paired holdout bootstrap samples.
 
 ## Calculation spot-checks
 
@@ -26,17 +28,20 @@ the executed code.
 - Retail segment revenue sums to cleaned transaction revenue: verified.
 - Retail K diagnostics cover every integer from 2 through 8, and repeated-seed ARI values
   remain within their valid range: verified.
-- Bank score deciles reconcile to all 8,236 holdout records: verified.
-- Bank top-20% capture and lift recompute from saved holdout scoring outputs: verified.
-- Bank holdout ROC-AUC, PR-AUC, top-20% lift, and capture all fall inside their bootstrap
-  95% confidence intervals: verified.
-- Bank sigmoid calibration improves Brier score from 0.143 to 0.075: verified.
-- Bank leakage audit shows post-call duration inflates ROC-AUC from 0.814 to 0.946 and
-  PR-AUC from 0.487 to 0.652: verified.
+- Bank score deciles and budget totals reconcile to all 8,236 holdout records: verified.
+- The random-targeting benchmark, cumulative capture, and contacts-per-responder metrics
+  reconcile at every saved budget: verified.
+- Final ROC-AUC, PR-AUC, Brier score, top-10/20/30% capture, and top-20% lift fall inside
+  1,000-sample bootstrap intervals: verified.
+- Isotonic calibration minimizes nested training-only Brier score: verified.
+- Planning, macro, operational, duplicate-retention, and post-contact leakage
+  specifications remain explicitly separated: verified.
 
 ## Required caveats
 
 - These are observational portfolio projects, not production deployments.
 - Retail profitability cannot be measured because cost and margin are unavailable.
-- Bank modeling needs temporal, fairness, calibration, compliance, and randomized-pilot
-  validation before operational use.
+- Bank modeling needs true timestamps, customer IDs, prospective external validation,
+  fairness/compliance review, observed economics, and randomized policy evaluation.
+- The bank holdout was reported previously and is a development holdout, not pristine
+  prospective validation.

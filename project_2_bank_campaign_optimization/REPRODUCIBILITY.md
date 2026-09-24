@@ -1,23 +1,20 @@
 # Reproducibility
 
-## Environment and source
-
-Run the project with Python 3.12 or a compatible recent Python 3 release. Install the
-pinned minimum dependencies in `requirements.txt`, then download the public source file:
+## Source and environment
 
 ```bash
 python download_data.py --project bank
-pip install -r project_2_bank_campaign_optimization/requirements.txt
+python -m pip install -r project_2_bank_campaign_optimization/requirements.txt
 ```
 
-Expected input:
+Expected source:
 
-- Path: `project_2_bank_campaign_optimization/data/bank-additional-full.csv`
+- `project_2_bank_campaign_optimization/data/bank-additional-full.csv`
 - SHA-256: `74adfc578bf77a7ff4bb1ba4a9f8709d9e3c6907342959c2c8416847e0afb4d8`
-- Raw rows: 41,188
-- Rows after removing 12 exact duplicates: 41,176
+- 41,188 source rows; 12 exact duplicates; 41,176 primary-analysis rows
 
-The downloaded `data/` directory is intentionally excluded from GitHub.
+`outputs/summary.json` records Python, pandas, NumPy, scikit-learn, and Matplotlib
+versions. `requirements.txt` specifies tested minimum direct dependencies.
 
 ## Deterministic execution
 
@@ -26,19 +23,30 @@ python project_2_bank_campaign_optimization/analysis.py
 python project_2_bank_campaign_optimization/validate_outputs.py
 ```
 
-The analysis uses random seed 42, a stratified 80/20 train-holdout split, five
-stratified training folds, and 1,000 bootstrap resamples. It refreshes every CSV, JSON,
-SQLite, and PNG artifact under `outputs/`; the SQLite file is ignored by Git.
+The pipeline uses seed 42, a fixed stratified 80/20 split, five stratified training
+folds, three-fold nested calibration selection, and 1,000 paired bootstrap resamples.
+Preprocessing is fitted inside each training fold. Model and calibration choices are
+locked before holdout evaluation.
 
-Expected headline results, allowing for small dependency-version differences:
+## Information timing
 
-- selected base model: Random Forest
-- training five-fold mean PR-AUC: approximately 0.467
-- calibrated holdout ROC-AUC: approximately 0.813
-- calibrated holdout PR-AUC: approximately 0.485
-- top-20% responder capture: approximately 65.9%
-- top-20% lift: approximately 3.30x
+UCI states that `campaign` includes the focal contact and `duration` is unavailable
+before the call. The primary model excludes both. Nonnegative
+`campaign_prior = campaign - 1` appears only in operational sensitivity models. Macro
+indicators are tested separately because they may be observable at contact time yet
+encode campaign-period regimes and may not be publication-vintage values.
 
-`validate_outputs.py` independently checks source identity, row reconciliation, training
-fold coverage, selection logic, holdout metrics, budget/decile totals, confidence
-intervals, calibration improvement, leakage direction, and required chart files.
+## Holdout status
+
+Earlier repository versions reported this split, so it is a fixed development holdout,
+not pristine prospective external validation. The file is date ordered but has only
+month and weekday at row level; a complete chronological split cannot be reconstructed.
+
+## Notebook
+
+```bash
+cd project_2_bank_campaign_optimization
+python -m jupyter nbconvert --execute --to notebook --inplace bank_campaign_optimization.ipynb
+```
+
+The notebook imports and calls `run_analysis()`; calculations are not duplicated.

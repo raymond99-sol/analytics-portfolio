@@ -2,74 +2,57 @@
 
 ## Research question
 
-Can response modeling improve pre-call targeting under class imbalance while avoiding
-information leakage and reporting uncertainty honestly?
+Can response models improve resource-constrained bank marketing targeting when restricted
+to information genuinely available at the targeting decision, and how much apparent
+performance changes when information leakage, calibration, and uncertainty are handled?
 
-## Research design
+## Empirical design
 
-- Cleaned **41,188** UCI campaign contact records to **41,176** observations after
-  removing 12 exact duplicates; the positive subscription rate is **11.3%**.
-- Reserved a stratified **20% holdout** before model selection.
-- Compared a prevalence baseline, class-weighted logistic regression, and random forest
-  with **five-fold stratified cross-validation on the training set only**.
-- Selected the model by mean PR-AUC, then applied sigmoid probability calibration using
-  training data only.
-- Evaluated the untouched holdout with ROC-AUC, PR-AUC, Brier score, budget lift,
-  responder capture, and **1,000 bootstrap samples** for 95% confidence intervals.
-- Refit the same random-forest architecture with post-call `duration` solely to quantify
-  target leakage; it is excluded from every legitimate pre-call model.
+- **Primary set:** ten customer and prior-campaign fields available before constructing
+  an outreach list. Raw `campaign`, current-contact fields, macro indicators, and
+  post-contact `duration` are excluded.
+- **Sensitivity sets:** planning plus macro context; operational pre-contact fields with
+  `campaign_prior = campaign - 1`; and operational plus macro context.
+- **Benchmark:** prevalence dummy, class-weighted logistic regression, random forest,
+  and histogram gradient boosting, selected by five-fold training-only PR-AUC.
+- **Calibration:** raw, sigmoid, and isotonic probabilities compared with nested
+  training-only predictions; the final choice minimizes Brier score.
+- **Evaluation:** fixed 20% stratified development holdout, 1,000 paired bootstrap
+  samples, budget metrics, duplicate sensitivity, and a post-contact leakage benchmark.
 
-## Verified findings
-
-- Random forest led training-set selection with mean **0.467 PR-AUC (+/- 0.018 SD)**
-  and **0.800 ROC-AUC (+/- 0.011 SD)** across five folds.
-- The calibrated model achieved **0.813 ROC-AUC** (95% CI **0.797-0.830**),
-  **0.485 PR-AUC** (95% CI **0.449-0.521**), and a **0.075 Brier score** on
-  8,236 untouched holdout observations.
-- The top-ranked 20% converted at **37.1%**, captured **65.9% of subscribers**
-  (95% CI **63.2%-68.9%**), and produced **3.30x lift**
-  (95% CI **3.16x-3.44x**) relative to the holdout baseline.
-- Including `duration` inflated same-architecture holdout ROC-AUC from **0.814 to
-  0.946** and PR-AUC from **0.487 to 0.652**, demonstrating why it is invalid for
-  pre-call targeting.
+Exact verified results are generated in [`PAPER_RESULTS.md`](PAPER_RESULTS.md); the
+methodological change log is [`PUBLICATION_UPGRADE_AUDIT.md`](PUBLICATION_UPGRADE_AUDIT.md).
 
 ## Reproduce
 
-From the repository root:
-
 ```bash
 python download_data.py --project bank
-pip install -r project_2_bank_campaign_optimization/requirements.txt
+python -m pip install -r project_2_bank_campaign_optimization/requirements.txt
 python project_2_bank_campaign_optimization/analysis.py
 python project_2_bank_campaign_optimization/validate_outputs.py
 ```
 
-The notebook calls the same deterministic analysis pipeline and presents its key outputs.
-See [`REPRODUCIBILITY.md`](REPRODUCIBILITY.md) for the source hash and expected results.
+The notebook calls `run_analysis()` from `analysis.py`; it contains no independent
+modeling implementation. See [`REPRODUCIBILITY.md`](REPRODUCIBILITY.md).
 
-## Files
+## Main artifacts
 
-- `bank_campaign_optimization.ipynb` - executed reader-facing analysis
-- `analysis.py` - deterministic modeling and output pipeline
-- `validate_outputs.py` - independent saved-output integrity tests
-- `RESEARCH_BRIEF.md` - research framing, evidence, and extensions
-- `sql/campaign_analysis.sql` - standalone descriptive queries
-- `outputs/model_selection_summary.csv` - training-set cross-validation comparison
-- `outputs/bootstrap_intervals.csv` - holdout uncertainty estimates
-- `outputs/budget_metrics.csv` - lift and capture across call-budget levels
-- `outputs/leakage_audit.csv` - safe versus post-call feature comparison
-- `outputs/calibration_metrics.csv` - raw and calibrated probability diagnostics
-- `outputs/charts/` - presentation-ready figures
+- `analysis.py` - authoritative empirical pipeline and manuscript inputs
+- `bank_campaign_optimization.ipynb` - executed reader-facing companion
+- `validate_outputs.py` - independent output and traceability tests
+- `outputs/feature_availability_audit.csv` - audit of every predictor
+- `outputs/model_pairwise_bootstrap.csv` - paired model uncertainty
+- `outputs/information_set_comparison.csv` - timing/macro sensitivity
+- `outputs/budget_metrics.csv` - model and random targeting benchmarks
+- `outputs/leakage_audit.csv` - valid versus post-contact specification
+- `outputs/summary.json` - headline values and version record
 
-## Data source
+## Interpretation boundary
 
-Sérgio Moro, Paulo Rita, and Paulo Cortez (2014), *Bank Marketing*, UCI Machine
-Learning Repository. DOI: https://doi.org/10.24432/C5K306. Licensed under CC BY 4.0.
+Source: Moro, Rita, and Cortez (2014), *Bank Marketing*, UCI Machine Learning
+Repository, DOI: https://doi.org/10.24432/C5K306 (CC BY 4.0).
 
-## Limitations
-
-The extract provides no customer identifier, so repeated clients cannot be grouped
-during splitting. It also lacks a complete year-level timestamp for defensible temporal
-validation. Results estimate subscription propensity, not the causal effect of calling.
-Production use requires prospective temporal testing, randomized incrementality,
-fairness, consent, contact-frequency, and calibration-drift review.
+The outcome is observed subscription, not incremental treatment effect. The data omit
+stable customer IDs, full row-level dates, costs, and customer value; the project claims
+neither causal lift nor monetary ROI. Earlier versions used the fixed holdout, so it is
+labeled a development holdout rather than pristine prospective external validation.

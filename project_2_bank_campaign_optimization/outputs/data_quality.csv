@@ -1,8 +1,11 @@
-Check,Value,Status
-Raw rows,41188,Pass
-Exact duplicate rows,12,Documented
-Analysis rows,41176,Pass
-Missing cells,0,Pass
-Literal unknown cells,12716,Documented
-Rows containing unknown,10698,Documented
-Positive outcomes,4639,Pass
+Check,Value,Status,Analytical_Risk
+Source hash,74adfc578bf77a7ff4bb1ba4a9f8709d9e3c6907342959c2c8416847e0afb4d8,Pass,Wrong source version
+Raw rows,41188,Pass,Unexpected extract size
+Exact duplicate rows,12,Sensitivity analyzed,Unknown record identity
+Analysis rows,41176,Pass,Row reconciliation
+Missing cells,0,Pass,Silent missingness
+Literal unknown cells,12716,Documented category,Unknown not missing at random
+Rows containing unknown,10698,Documented category,Coverage
+Positive outcomes,4639,Pass,Class balance
+campaign_prior minimum,0,Pass,Invalid transformation
+campaign_prior maximum,55,Documented,Contact-frequency tail

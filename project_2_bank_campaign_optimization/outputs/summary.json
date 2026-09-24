@@ -1,56 +1,100 @@
 {
   "data_sha256": "74adfc578bf77a7ff4bb1ba4a9f8709d9e3c6907342959c2c8416847e0afb4d8",
   "raw_rows": 41188,
-  "duplicate_rows_removed": 12,
+  "duplicate_rows": 12,
   "analysis_rows": 41176,
   "positive_outcomes": 4639,
   "subscription_rate": 0.11266271614532737,
   "rows_with_unknown": 10698,
-  "selected_base_model": "Random Forest",
-  "selection_rule": "Highest mean five-fold training-set PR-AUC",
-  "cv_pr_auc_mean": 0.4670973330552427,
-  "cv_pr_auc_std": 0.018201972254862368,
-  "cv_roc_auc_mean": 0.7996955871002658,
-  "cv_roc_auc_std": 0.010713520505861933,
-  "final_model": "Calibrated Random Forest",
+  "information_set_decision": "C: compare multiple sets; strict planning is primary",
+  "primary_information_set": "Strict planning (primary)",
+  "primary_features": [
+    "age",
+    "job",
+    "marital",
+    "education",
+    "default",
+    "housing",
+    "loan",
+    "pdays",
+    "previous",
+    "poutcome"
+  ],
+  "train_rows": 32940,
   "holdout_rows": 8236,
-  "roc_auc": 0.8132610784355359,
+  "holdout_status": "Previously analyzed development holdout; not pristine prospective validation",
+  "candidate_models": [
+    "Dummy Baseline",
+    "Logistic Regression",
+    "Random Forest",
+    "Histogram Gradient Boosting"
+  ],
+  "selected_base_model": "Random Forest",
+  "selection_rule": "Highest mean five-fold training-set PR-AUC; ROC-AUC breaks an exact tie",
+  "cv_pr_auc_mean": 0.35297951313729203,
+  "cv_pr_auc_std": 0.015303210071549963,
+  "cv_roc_auc_mean": 0.7037936601737146,
+  "cv_roc_auc_std": 0.010526547870969651,
+  "calibration_selection_rule": "Lowest nested training-only OOF Brier score",
+  "calibration_method": "isotonic",
+  "calibration_method_label": "isotonic",
+  "final_model": "Random Forest (isotonic calibration)",
+  "roc_auc": 0.7061995415982485,
   "roc_auc_ci95": [
-    0.7971015908545963,
-    0.8301470907582386
+    0.6868051305073554,
+    0.7244784552512182
   ],
-  "pr_auc": 0.4849097157517414,
+  "pr_auc": 0.33912158307799334,
   "pr_auc_ci95": [
-    0.44927981975378134,
-    0.5206157651766664
+    0.30732623081938537,
+    0.37203249328008703
   ],
-  "brier_score": 0.07544451915343232,
-  "top_20_conversion_rate": 0.3713592233009709,
-  "top_20_lift": 3.2958131067961163,
+  "brier_score": 0.08725605617489417,
+  "brier_score_ci95": [
+    0.0822940263651017,
+    0.09173777491636827
+  ],
+  "log_loss": 0.31003018452694375,
+  "top_20_conversion_rate": 0.25606796116504854,
+  "top_20_lift": 2.2726031553398056,
   "top_20_lift_ci95": [
-    3.156073423716278,
-    3.4417812645901513
+    2.1294713842149613,
+    2.411876297577915
   ],
-  "top_20_capture": 0.6594827586206896,
+  "top_20_capture": 0.4547413793103448,
   "top_20_capture_ci95": [
-    0.6315212484560985,
-    0.6886905687280924
+    0.4261011220478698,
+    0.48260953598936435
   ],
-  "safe_model_pr_auc": 0.48679004650511487,
-  "leaky_model_pr_auc": 0.6522706728592049,
-  "safe_model_roc_auc": 0.8139137052214862,
-  "leaky_model_roc_auc": 0.9459161724043561,
+  "leaky_model_pr_auc": 0.6514994833820709,
+  "leaky_model_roc_auc": 0.9463443020638695,
   "bootstrap_repeats": 1000,
+  "environment": {
+    "python": "3.13.3",
+    "pandas": "3.0.1",
+    "numpy": "2.4.3",
+    "scikit-learn": "1.9.0",
+    "matplotlib": "3.10.9"
+  },
   "validation_checks": {
     "source_hash_matches": true,
-    "duration_excluded_from_selection": true,
+    "all_source_predictors_audited": true,
+    "primary_feature_rules_match_audit": true,
+    "duration_excluded_from_primary": true,
+    "raw_campaign_excluded_from_models": true,
+    "campaign_prior_nonnegative": true,
     "holdout_isolation": true,
-    "train_test_rows_reconcile": true,
+    "train_holdout_rows_reconcile": true,
+    "cv_fold_integrity": true,
     "probabilities_in_range": true,
-    "decile_contact_records_reconcile": true,
-    "decile_subscribers_reconcile": true,
+    "budget_contacts_monotonic": true,
+    "budget_capture_monotonic": true,
+    "budget_full_sample_reconciles": true,
+    "budget_full_subscribers_reconcile": true,
+    "random_baseline_reconciles": true,
     "bootstrap_intervals_contain_estimates": true,
-    "calibration_improves_brier": true,
-    "leakage_audit_inflates_performance": true
+    "bootstrap_count": true,
+    "leaky_model_not_final": true,
+    "duration_inflates_pr_auc": true
   }
 }
