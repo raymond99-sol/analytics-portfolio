@@ -25,8 +25,16 @@ python project_2_bank_campaign_optimization/validate_outputs.py
 
 The pipeline uses seed 42, a fixed stratified 80/20 split, five stratified training
 folds, three-fold nested calibration selection, and 1,000 paired bootstrap resamples.
-Preprocessing is fitted inside each training fold. Model and calibration choices are
-locked before holdout evaluation.
+The prespecified information-set contrasts reuse identical fixed-holdout row indices
+within every bootstrap resample; their machine-readable intervals are saved in
+`outputs/information_set_pairwise_bootstrap.csv`. Preprocessing is fitted inside each
+training fold. Model and calibration choices are locked before holdout evaluation.
+
+To refresh empirical outputs without rewriting the generated manuscript-input files:
+
+```bash
+python -c "from project_2_bank_campaign_optimization.analysis import run_analysis; run_analysis(write_manuscript_files=False)"
+```
 
 ## Information timing
 

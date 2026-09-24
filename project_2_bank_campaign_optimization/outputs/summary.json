@@ -69,6 +69,7 @@
   "leaky_model_pr_auc": 0.6514994833820709,
   "leaky_model_roc_auc": 0.9463443020638695,
   "bootstrap_repeats": 1000,
+  "information_set_pairwise_bootstrap_repeats": 1000,
   "environment": {
     "python": "3.13.3",
     "pandas": "3.0.1",
@@ -95,6 +96,9 @@
     "bootstrap_intervals_contain_estimates": true,
     "bootstrap_count": true,
     "leaky_model_not_final": true,
-    "duration_inflates_pr_auc": true
+    "duration_inflates_pr_auc": true,
+    "information_pairwise_rows_complete": true,
+    "information_pairwise_bootstrap_count": true,
+    "information_pairwise_uses_fixed_holdout": true
   }
 }

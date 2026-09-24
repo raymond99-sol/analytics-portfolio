@@ -20,7 +20,8 @@ REQUIRED_OUTPUTS = {
     "model_metrics.csv", "model_pairwise_bootstrap.csv",
     "budget_metrics.csv", "targeting_deciles.csv", "capture_efficiency.csv",
     "bootstrap_intervals.csv", "calibration_metrics.csv", "calibration_curve.csv",
-    "information_set_comparison.csv", "duplicate_sensitivity.csv",
+    "information_set_comparison.csv", "information_set_pairwise_bootstrap.csv",
+    "duplicate_sensitivity.csv",
     "leakage_audit.csv", "logistic_coefficients.csv",
     "permutation_importance.csv", "summary.json",
 }
@@ -61,6 +62,9 @@ def main() -> None:
     calibration = pd.read_csv(OUTPUT_DIR / "calibration_metrics.csv")
     curve = pd.read_csv(OUTPUT_DIR / "calibration_curve.csv")
     information = pd.read_csv(OUTPUT_DIR / "information_set_comparison.csv")
+    information_pairwise = pd.read_csv(
+        OUTPUT_DIR / "information_set_pairwise_bootstrap.csv"
+    )
     duplicates = pd.read_csv(OUTPUT_DIR / "duplicate_sensitivity.csv")
     leakage = pd.read_csv(OUTPUT_DIR / "leakage_audit.csv")
     importance = pd.read_csv(OUTPUT_DIR / "permutation_importance.csv")
@@ -118,6 +122,55 @@ def main() -> None:
     primary = information.loc[information["Primary"]].iloc[0]
     assert primary["Information_Set"] == summary["primary_information_set"]
     assert set(primary["Features"].split("|")) == set(summary["primary_features"])
+    expected_information_pairs = {
+        ("Strict planning (primary)", "Planning plus macro context", "PR_AUC"),
+        ("Strict planning (primary)", "Planning plus macro context", "Top20_Capture"),
+        ("Strict planning (primary)", "Operational pre-contact", "PR_AUC"),
+        ("Strict planning (primary)", "Operational pre-contact", "Top20_Capture"),
+        ("Strict planning (primary)", "Operational plus macro context", "PR_AUC"),
+        ("Strict planning (primary)", "Operational plus macro context", "Top20_Capture"),
+        ("Operational plus macro context", "Invalid: operational plus macro plus duration", "PR_AUC"),
+        ("Operational plus macro context", "Invalid: operational plus macro plus duration", "Top20_Capture"),
+    }
+    assert set(
+        information_pairwise[["Reference_Set", "Comparison_Set", "Metric"]]
+        .itertuples(index=False, name=None)
+    ) == expected_information_pairs
+    assert (information_pairwise["Bootstrap_Samples"] == 1_000).all()
+    assert (information_pairwise["Bootstrap_Seed"] == 143).all()
+    assert (information_pairwise["Holdout_Rows"] == summary["holdout_rows"]).all()
+    assert information_pairwise["Pairing"].eq(
+        "Identical holdout indices within every resample"
+    ).all()
+    assert (
+        (information_pairwise["CI95_Lower"] <= information_pairwise["Estimate"])
+        & (information_pairwise["Estimate"] <= information_pairwise["CI95_Upper"])
+    ).all()
+    assert_finite(information_pairwise, ["Estimate", "CI95_Lower", "CI95_Upper"])
+
+    information_values = {
+        row.Information_Set: {
+            "PR_AUC": row.Holdout_PR_AUC,
+            "Top20_Capture": row.Top20_Capture,
+        }
+        for row in information.itertuples()
+    }
+    invalid = leakage.loc[leakage["Includes_Duration"]].iloc[0]
+    information_values[str(invalid["Feature_Set"])] = {
+        "PR_AUC": invalid["PR_AUC"],
+        "Top20_Capture": invalid["Top20_Capture"],
+    }
+    for row in information_pairwise.itertuples():
+        expected_difference = (
+            information_values[row.Comparison_Set][row.Metric]
+            - information_values[row.Reference_Set][row.Metric]
+        )
+        assert np.isclose(row.Estimate, expected_difference)
+        if row.Comparison_Set.startswith("Invalid:"):
+            assert row.Comparison_Type == "Invalid leakage diagnostic"
+        else:
+            assert row.Comparison_Type == "Valid decision-point contrast"
+
     assert duplicates["Rows"].tolist() == [41_176, 41_188]
     assert len(importance) == len(summary["primary_features"])
     assert_finite(importance, ["Importance_Mean", "Importance_SD"])

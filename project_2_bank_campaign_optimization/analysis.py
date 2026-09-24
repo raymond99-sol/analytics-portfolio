@@ -52,6 +52,15 @@ INFORMATION_SETS = {
     "Operational pre-contact": PRIMARY_FEATURES + CONTACT_FEATURES,
     "Operational plus macro context": PRIMARY_FEATURES + CONTACT_FEATURES + MACRO_FEATURES,
 }
+INFORMATION_SET_COMPARISONS = [
+    ("Strict planning (primary)", "Planning plus macro context"),
+    ("Strict planning (primary)", "Operational pre-contact"),
+    ("Strict planning (primary)", "Operational plus macro context"),
+    (
+        "Operational plus macro context",
+        "Invalid: operational plus macro plus duration",
+    ),
+]
 
 BLUE, BLUE_DARK, BLUE_LIGHT = "#2F6BFF", "#163B77", "#AFC9FF"
 GOLD, RED, INK, GREY = "#D8A227", "#C34A36", "#20242B", "#6F7782"
@@ -255,6 +264,77 @@ def bootstrap_results(actual: np.ndarray, final_scores: np.ndarray, comparators:
     return intervals, pd.DataFrame(pair_rows)
 
 
+def bootstrap_information_set_differences(
+    actual: np.ndarray,
+    predictions: dict[str, np.ndarray],
+) -> pd.DataFrame:
+    """Paired fixed-holdout uncertainty for prespecified information-set contrasts."""
+    rng = np.random.default_rng(RANDOM_STATE + 101)
+    metrics = ("PR_AUC", "Top20_Capture")
+    samples = {
+        (reference, comparison, metric): []
+        for reference, comparison in INFORMATION_SET_COMPARISONS
+        for metric in metrics
+    }
+
+    for _ in range(BOOTSTRAP_REPEATS):
+        indices = rng.integers(0, len(actual), len(actual))
+        sampled_actual = actual[indices]
+        if sampled_actual.min() == sampled_actual.max():
+            continue
+        values = {
+            name: {
+                "PR_AUC": average_precision_score(sampled_actual, scores[indices]),
+                "Top20_Capture": evaluate_ranking(
+                    sampled_actual, scores[indices], 0.20
+                )["responder_capture"],
+            }
+            for name, scores in predictions.items()
+        }
+        for reference, comparison in INFORMATION_SET_COMPARISONS:
+            for metric in metrics:
+                samples[(reference, comparison, metric)].append(
+                    values[comparison][metric] - values[reference][metric]
+                )
+
+    point_values = {
+        name: {
+            "PR_AUC": average_precision_score(actual, scores),
+            "Top20_Capture": evaluate_ranking(actual, scores, 0.20)[
+                "responder_capture"
+            ],
+        }
+        for name, scores in predictions.items()
+    }
+    rows = []
+    for reference, comparison in INFORMATION_SET_COMPARISONS:
+        comparison_type = (
+            "Invalid leakage diagnostic"
+            if comparison.startswith("Invalid:")
+            else "Valid decision-point contrast"
+        )
+        for metric in metrics:
+            distribution = np.asarray(samples[(reference, comparison, metric)])
+            rows.append(
+                {
+                    "Reference_Set": reference,
+                    "Comparison_Set": comparison,
+                    "Comparison_Type": comparison_type,
+                    "Metric": metric,
+                    "Difference_Definition": "Comparison minus reference",
+                    "Estimate": point_values[comparison][metric]
+                    - point_values[reference][metric],
+                    "CI95_Lower": float(np.quantile(distribution, 0.025)),
+                    "CI95_Upper": float(np.quantile(distribution, 0.975)),
+                    "Bootstrap_Samples": len(distribution),
+                    "Bootstrap_Seed": RANDOM_STATE + 101,
+                    "Holdout_Rows": len(actual),
+                    "Pairing": "Identical holdout indices within every resample",
+                }
+            )
+    return pd.DataFrame(rows)
+
+
 def build_deciles(actual: np.ndarray, scores: np.ndarray) -> pd.DataFrame:
     scored = pd.DataFrame({"actual": actual, "score": scores}).sort_values("score", ascending=False, kind="mergesort").reset_index(drop=True)
     scored["decile"] = pd.qcut(scored.index.to_series().rank(method="first"), 10, labels=range(1, 11))
@@ -280,8 +360,9 @@ def capture_efficiency(actual: np.ndarray, scores: np.ndarray) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def evaluate_information_sets(campaign: pd.DataFrame, train_index: pd.Index, test_index: pd.Index, train_target: pd.Series, test_target: pd.Series, estimator: object, calibration: str, primary_cv: pd.Series, primary_probabilities: np.ndarray) -> pd.DataFrame:
+def evaluate_information_sets(campaign: pd.DataFrame, train_index: pd.Index, test_index: pd.Index, train_target: pd.Series, test_target: pd.Series, estimator: object, calibration: str, primary_cv: pd.Series, primary_probabilities: np.ndarray) -> tuple[pd.DataFrame, dict[str, np.ndarray]]:
     rows = []
+    predictions = {}
     cv = StratifiedKFold(n_splits=CV_FOLDS, shuffle=True, random_state=RANDOM_STATE)
     for name, columns in INFORMATION_SETS.items():
         train_x, test_x = campaign.loc[train_index, columns], campaign.loc[test_index, columns]
@@ -295,8 +376,9 @@ def evaluate_information_sets(campaign: pd.DataFrame, train_index: pd.Index, tes
             probabilities = model.predict_proba(test_x)[:, 1]
         metrics = probability_metrics(test_target.to_numpy(), probabilities)
         targeting = evaluate_ranking(test_target.to_numpy(), probabilities, 0.20)
+        predictions[name] = probabilities
         rows.append({"Information_Set": name, "Primary": name == "Strict planning (primary)", "Feature_Count": len(columns), "Features": "|".join(columns), "CV_PR_AUC": cv_pr, "CV_ROC_AUC": cv_roc, "Holdout_PR_AUC": metrics["PR_AUC"], "Holdout_ROC_AUC": metrics["ROC_AUC"], "Holdout_Brier_Score": metrics["Brier_Score"], "Top20_Capture": targeting["responder_capture"], "Top20_Lift": targeting["lift"]})
-    return pd.DataFrame(rows)
+    return pd.DataFrame(rows), predictions
 
 
 def duplicate_sensitivity(raw: pd.DataFrame, primary_metrics: dict[str, float], primary_targeting: dict[str, float], estimator: object, calibration: str) -> pd.DataFrame:
@@ -430,7 +512,10 @@ and the fixed holdout is labeled a previously analyzed development holdout.
 """
 
 
-def run_analysis(project_dir: Path | None = None) -> dict[str, object]:
+def run_analysis(
+    project_dir: Path | None = None,
+    write_manuscript_files: bool = True,
+) -> dict[str, object]:
     project_dir = project_dir or resolve_project_dir()
     data_path, output_dir = project_dir / "data" / "bank-additional-full.csv", project_dir / "outputs"
     chart_dir = output_dir / "charts"; output_dir.mkdir(exist_ok=True); chart_dir.mkdir(exist_ok=True)
@@ -491,12 +576,10 @@ def run_analysis(project_dir: Path | None = None) -> dict[str, object]:
     else: comparators[f"{selected_name} raw"] = comparators.pop(selected_name)
     intervals, pairwise = bootstrap_results(actual, final_probabilities, comparators)
     primary_cv = selection.loc[selection["Model"] == selected_name].iloc[0]
-    information = evaluate_information_sets(campaign, train_x.index, test_x.index, train_y, test_y, selected_estimator, calibration_method, primary_cv, final_probabilities)
+    information, information_predictions = evaluate_information_sets(campaign, train_x.index, test_x.index, train_y, test_y, selected_estimator, calibration_method, primary_cv, final_probabilities)
 
     operational_columns = INFORMATION_SETS["Operational plus macro context"]
-    operational_train, operational_test = campaign.loc[train_x.index, operational_columns], campaign.loc[test_x.index, operational_columns]
-    operational_model = make_model(operational_train, selected_estimator, calibration_method); operational_model.fit(operational_train, train_y)
-    operational_probabilities = operational_model.predict_proba(operational_test)[:, 1]
+    operational_probabilities = information_predictions["Operational plus macro context"]
     leaky_columns = operational_columns + ["duration"]
     leaky_train, leaky_test = campaign.loc[train_x.index, leaky_columns], campaign.loc[test_x.index, leaky_columns]
     leaky_model = make_model(leaky_train, selected_estimator, calibration_method); leaky_model.fit(leaky_train, train_y)
@@ -506,6 +589,13 @@ def run_analysis(project_dir: Path | None = None) -> dict[str, object]:
         metrics, ranking = probability_metrics(actual, probabilities), evaluate_ranking(actual, probabilities, 0.20)
         leakage_rows.append({"Feature_Set": name, "Deployable": not includes, "Includes_Duration": includes, **metrics, "Top20_Capture": ranking["responder_capture"], "Top20_Lift": ranking["lift"]})
     leakage = pd.DataFrame(leakage_rows)
+    information_pairwise = bootstrap_information_set_differences(
+        actual,
+        {
+            **information_predictions,
+            "Invalid: operational plus macro plus duration": leaky_probabilities,
+        },
+    )
     duplicates = duplicate_sensitivity(raw, final_metrics, final_ranking, selected_estimator, calibration_method)
 
     logistic = make_pipeline(train_x, estimators["Logistic Regression"]); logistic.fit(train_x, train_y)
@@ -534,6 +624,13 @@ def run_analysis(project_dir: Path | None = None) -> dict[str, object]:
         "bootstrap_count": bool((intervals["Bootstrap_Samples"] == BOOTSTRAP_REPEATS).all()),
         "leaky_model_not_final": bool(leakage.loc[leakage["Includes_Duration"], "Deployable"].eq(False).all()),
         "duration_inflates_pr_auc": bool(leakage.iloc[1]["PR_AUC"] > leakage.iloc[0]["PR_AUC"]),
+        "information_pairwise_rows_complete": len(information_pairwise) == 8,
+        "information_pairwise_bootstrap_count": bool(
+            (information_pairwise["Bootstrap_Samples"] == BOOTSTRAP_REPEATS).all()
+        ),
+        "information_pairwise_uses_fixed_holdout": bool(
+            (information_pairwise["Holdout_Rows"] == len(actual)).all()
+        ),
     }
     if not all(checks.values()): raise AssertionError(checks)
     primary_cv = selection.loc[selection["Model"] == selected_name].iloc[0]; interval_lookup = intervals.set_index("Metric")
@@ -552,16 +649,17 @@ def run_analysis(project_dir: Path | None = None) -> dict[str, object]:
         "log_loss": final_metrics["Log_Loss"], "top_20_conversion_rate": final_ranking["conversion_rate"], "top_20_lift": final_ranking["lift"],
         "top_20_lift_ci95": [float(interval_lookup.loc["Top20_Lift", "CI95_Lower"]), float(interval_lookup.loc["Top20_Lift", "CI95_Upper"])], "top_20_capture": final_ranking["responder_capture"],
         "top_20_capture_ci95": [float(interval_lookup.loc["Top20_Capture", "CI95_Lower"]), float(interval_lookup.loc["Top20_Capture", "CI95_Upper"])],
-        "leaky_model_pr_auc": float(leakage.iloc[1]["PR_AUC"]), "leaky_model_roc_auc": float(leakage.iloc[1]["ROC_AUC"]), "bootstrap_repeats": BOOTSTRAP_REPEATS,
+        "leaky_model_pr_auc": float(leakage.iloc[1]["PR_AUC"]), "leaky_model_roc_auc": float(leakage.iloc[1]["ROC_AUC"]), "bootstrap_repeats": BOOTSTRAP_REPEATS, "information_set_pairwise_bootstrap_repeats": BOOTSTRAP_REPEATS,
         "environment": {"python": platform.python_version(), "pandas": version("pandas"), "numpy": version("numpy"), "scikit-learn": version("scikit-learn"), "matplotlib": version("matplotlib")}, "validation_checks": checks,
     }
-    tables = {"data_quality.csv": quality, "feature_availability_audit.csv": audit, "cross_validation_folds.csv": folds, "model_selection_summary.csv": selection, "model_metrics.csv": model_metrics, "model_pairwise_bootstrap.csv": pairwise, "budget_metrics.csv": budget, "targeting_deciles.csv": deciles, "capture_efficiency.csv": efficiency, "bootstrap_intervals.csv": intervals, "calibration_metrics.csv": calibration_metrics, "calibration_curve.csv": calibration_table, "information_set_comparison.csv": information, "duplicate_sensitivity.csv": duplicates, "leakage_audit.csv": leakage, "logistic_coefficients.csv": coefficient_table, "permutation_importance.csv": importance}
+    tables = {"data_quality.csv": quality, "feature_availability_audit.csv": audit, "cross_validation_folds.csv": folds, "model_selection_summary.csv": selection, "model_metrics.csv": model_metrics, "model_pairwise_bootstrap.csv": pairwise, "budget_metrics.csv": budget, "targeting_deciles.csv": deciles, "capture_efficiency.csv": efficiency, "bootstrap_intervals.csv": intervals, "calibration_metrics.csv": calibration_metrics, "calibration_curve.csv": calibration_table, "information_set_comparison.csv": information, "information_set_pairwise_bootstrap.csv": information_pairwise, "duplicate_sensitivity.csv": duplicates, "leakage_audit.csv": leakage, "logistic_coefficients.csv": coefficient_table, "permutation_importance.csv": importance}
     for filename, table in tables.items(): table.to_csv(output_dir / filename, index=False)
     save_charts(chart_dir, selection, deciles, calibration_table, information, leakage, importance, final_label)
     (output_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
-    (project_dir / "PAPER_RESULTS.md").write_text(render_paper_results(summary, selection, budget, intervals, pairwise, calibration_metrics, leakage, information, duplicates, importance), encoding="utf-8")
-    (project_dir / "PUBLICATION_UPGRADE_AUDIT.md").write_text(render_upgrade_audit(summary), encoding="utf-8")
-    return {"summary": summary, "data_quality": quality, "feature_availability_audit": audit, "cv_summary": selection, "holdout_metrics": model_metrics, "bootstrap_intervals": intervals, "model_pairwise_bootstrap": pairwise, "budget_metrics": budget, "information_set_comparison": information, "duplicate_sensitivity": duplicates, "leakage_audit": leakage, "permutation_importance": importance}
+    if write_manuscript_files:
+        (project_dir / "PAPER_RESULTS.md").write_text(render_paper_results(summary, selection, budget, intervals, pairwise, calibration_metrics, leakage, information, duplicates, importance), encoding="utf-8")
+        (project_dir / "PUBLICATION_UPGRADE_AUDIT.md").write_text(render_upgrade_audit(summary), encoding="utf-8")
+    return {"summary": summary, "data_quality": quality, "feature_availability_audit": audit, "cv_summary": selection, "holdout_metrics": model_metrics, "bootstrap_intervals": intervals, "model_pairwise_bootstrap": pairwise, "budget_metrics": budget, "information_set_comparison": information, "information_set_pairwise_bootstrap": information_pairwise, "duplicate_sensitivity": duplicates, "leakage_audit": leakage, "permutation_importance": importance}
 
 
 if __name__ == "__main__":
