@@ -77,6 +77,9 @@ Differences are comparison minus reference, using identical holdout indices with
 
 - Final empirical commit: `984ef58303e2181e51dabcfc2e46fa10dfa4d66d`
 - Final manuscript snapshot commit: `ca6d83e723cb05b93127fb526f32ec532f5867f0`
+- Handoff creation commit: `87990c82f807f9febd402a81d4f347a6dac39966`
+- This commit adds only `PROJECT_HANDOFF.md`; the manuscript snapshot remains `ca6d83e723cb05b93127fb526f32ec532f5867f0`.
+- Current status: manuscript complete; ready for AMS 2027 submission.
 
 ## 11. Current Baseline and Revision Rule
 
