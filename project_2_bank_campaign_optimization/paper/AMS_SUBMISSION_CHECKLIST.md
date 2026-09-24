@@ -1,0 +1,30 @@
+# 2027 AMS full-paper submission audit
+
+Checked 24 September 2026 against the official [2027 AMS call for papers](https://www.ams-web.org/ams27-cfp), [annual-conference page](https://www.ams-web.org/annual-conference), and [submission help](https://www.ams-web.org/help). The call was live and the submission system was open on the check date.
+
+| Item | Verification |
+|---|---|
+| Track fit | **Marketing Research and Analytics** is an official track. The paper studies decision-valid response modeling, customer targeting, calibration, and budgeted ranking. The CFP also states that traditional marketing topics are welcome; the conference theme is not forced into the manuscript. |
+| Conference / deadline | May 19–21, 2027, Hilton La Jolla Torrey Pines, San Diego/La Jolla, California. Submission deadline: **October 15, 2026**. |
+| Full-paper cap | Official maximum: **12 single-spaced pages or 7,000 total words, whichever is less**, including exhibits and references. Blind PDF: **10 pages; 4,024 whitespace-delimited PDF-extracted words**. Writing-sample PDF: **11 pages; 4,400 extracted words**. The blind version is within both caps. |
+| Typeface / page | Times New Roman 12 pt throughout editable manuscript text, tables, captions, and notes; US Letter; 1-inch margins; single spacing. Embedded repository figures remain legible. |
+| Blind review | Blind DOCX/PDF contain title, abstract, body, exhibits, and references only. No author, affiliation, title page, acknowledgments, GitHub handle, identifying footer, or author/last-modified-by core metadata. |
+| Exhibits | Three tables and two figures. Table 1 now reports the decision status, level performance, and paired changes for all five information sets. Table 3 headings and column widths were rebuilt and visually checked. Figure 1 is `information_set_and_leakage.png`; Figure 2 is `cumulative_gains.png`. |
+| Citations | All in-text citations resolve to 15 audited entries. Six verified sources were added to improve positioning on marketing analytics, predictive versus policy objectives, and propensity versus incremental targeting. |
+| Empirical consistency | Numbers were reconciled with commit `984ef58303e2181e51dabcfc2e46fa10dfa4d66d`, including `PAPER_RESULTS.md`, `summary.json`, `model_selection_summary.csv`, `model_metrics.csv`, `budget_metrics.csv`, `information_set_comparison.csv`, `information_set_pairwise_bootstrap.csv`, `bootstrap_intervals.csv`, `model_pairwise_bootstrap.csv`, `leakage_audit.csv`, `duplicate_sensitivity.csv`, and `calibration_metrics.csv`. |
+| Paired information-set inference | `information_set_pairwise_bootstrap.csv` directly verifies four prespecified contrasts, 1,000 paired resamples, seed 143, 8,236 holdout rows, and identical holdout indices within every resample. Manuscript values are rounded directly from the CSV. Intervals are identified as pointwise and conditional on the fixed development exercise. |
+| Causality | The paper reports observed subscribers, response propensity, descriptive lift, and specification differences. It does not call the information-set differences causal effects of variables, attribute the full 0.339-to-0.651 gap to leakage, claim caused subscriptions, or claim monetary ROI. |
+| Validation status | The fixed split is consistently called a **previously inspected development holdout**. No external, customer-grouped, pristine, or prospective temporal validation is claimed. |
+| Visual QA | Every page of both rendered manuscripts was inspected. Tables remain inside margins; headings and numerical cells are legible; figures and captions are paired; references use hanging indents; no blank or clipped page remains. |
+
+## Final adversarial review and manuscript response
+
+**Marketing reviewer: “The contribution is thin and the paper lacks a marketing decision argument.”** The revision anchors the study in customer selection, marketing analytics, policy-aligned prediction, and incremental targeting. It states a precise contribution: a performance estimate applies to a defined targeting decision and its available information. Table 1 and the results now quantify that claim with paired uncertainty, while Section 6 converts the valid planning scores into contact-budget outcomes. The paper continues to avoid theoretical, algorithmic, dataset, and ROI novelty claims.
+
+**Quantitative reviewer: “The statistical comparison is underdeveloped, the holdout has been reused, and information sets may be subjective.”** The revision reports all four paired information-set contrasts using identical holdout resamples, names the references for each contrast, gives the bootstrap seed and sample count, and labels the intervals pointwise and conditional. Exact features and decision status remain explicit. The manuscript discloses prior holdout inspection, possible repeated customers, absent full timestamps, workflow dependence, and macro release-vintage risk. These limitations cannot be removed with the public data.
+
+**PhD admissions professor: “This is still an old UCI modeling exercise.”** The introduction explicitly identifies the data as old and widely reused and cites the original study. The manuscript does not rely on classifier performance as its intellectual contribution. The revised argument connects an empirical measurement design to prediction, marketing policy, calibration, and treatment-effect targeting, then demonstrates that information-set specification yields larger measured differences than marginal algorithm choice in this setting. The data remain a transparent demonstration rather than evidence of current-market generalizability.
+
+## Remaining submission boundaries
+
+The official CFP requests author and contact information in EasyChair while the uploaded manuscript must remain anonymous. AMS prohibits simultaneous submission of the same paper to multiple tracks or conferences. At least one author of an accepted paper must register and present in person. Recheck the official pages immediately before upload in case instructions change.
